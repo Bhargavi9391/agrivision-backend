@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import authRoutes from './routes/authRoutes.js';
 import predictRoutes from './routes/predictRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import { initDb } from './config/initDb.js';
 
 dotenv.config();
 
@@ -39,7 +40,14 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ message: err.message || 'Internal server error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Backend server running on port ${PORT}`);
-});
+initDb()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Backend server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Database initialization failed:', err);
+    process.exit(1);
+  });
 
